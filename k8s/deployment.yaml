@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference-lab
+  labels:
+    app: inference-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inference-lab
+  template:
+    metadata:
+      labels:
+        app: inference-lab
+    spec:
+      containers:
+        - name: inference
+          image: inference-lab:latest
+          args:
+            - "--model"
+            - "meta-llama/Llama-3.1-8B-Instruct"
+            - "--port"
+            - "8000"
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "4"
+              memory: "16Gi"
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "8"
+              memory: "32Gi"
+              nvidia.com/gpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 180
+            periodSeconds: 30
+          env:
+            - name: CUDA_VISIBLE_DEVICES
+              value: "0"
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-credentials
+                  key: token
+                  optional: true
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-lab
+spec:
+  selector:
+    app: inference-lab
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP

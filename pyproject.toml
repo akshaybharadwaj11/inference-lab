@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inference-lab"
+version = "0.1.0"
+description = "LLM inference benchmarking, profiling, and serving toolkit"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [{name = "Akshay Bharadwaj"}]
+
+dependencies = [
+    "vllm>=0.6.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.5.0",
+    "pyyaml>=6.0",
+    "numpy>=1.24.0",
+    "tabulate>=0.9.0",
+    "structlog>=23.2.0",
+    "opentelemetry-api>=1.21.0",
+    "opentelemetry-sdk>=1.21.0",
+    "opentelemetry-exporter-otlp>=1.21.0",
+    "prometheus-client>=0.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+    "httpx>=0.25.0",
+]
+profiling = [
+    "py-spy>=0.3.14",
+    "memray>=1.10.0",
+    "viztracer>=0.16.0",
+]
+
+[project.scripts]
+inference-lab = "inference_lab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "gpu: requires GPU (deselect with '-m not gpu')",
+    "slow: long-running benchmarks",
+]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true

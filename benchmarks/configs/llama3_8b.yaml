@@ -1,0 +1,25 @@
+# Benchmark configuration for Llama 3.1 8B
+# Usage: python -m inference_lab.bench.runner --config benchmarks/configs/llama3_8b.yaml
+
+model: "meta-llama/Llama-3.1-8B-Instruct"
+backend: "vllm"
+dtype: "float16"
+tp_degree: 1
+gpu: "auto"          # auto-detect GPU name
+max_model_len: 8192
+
+# Workload configuration
+num_requests: 200
+concurrency: 16       # concurrent in-flight requests
+prompt_distribution: "uniform"
+prompt_min: 128
+prompt_max: 2048
+output_distribution: "uniform"
+output_min: 64
+output_max: 512
+seed: 42
+
+# Engine settings
+enforce_eager: false
+enable_prefix_caching: false
+gpu_memory_utilization: 0.90
